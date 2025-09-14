@@ -3,121 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RWD 美觀範本</title>
+  <title>HTML 檔案總覽</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary: #4f8cff;
-      --secondary: #f5f7fa;
-      --accent: #ffb347;
-      --text: #222;
-      --radius: 12px;
-    }
-    * { box-sizing: border-box; }
     body {
       font-family: 'Noto Sans TC', sans-serif;
+      background: #f5f7fa;
       margin: 0;
-      background: var(--secondary);
-      color: var(--text);
+      padding: 0;
+      color: #222;
     }
-    header {
-      background: var(--primary);
-      color: #fff;
-      padding: 1.5rem 2rem;
-      text-align: center;
-      border-radius: 0 0 var(--radius) var(--radius);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    }
-    nav {
-      margin: 1.5rem 0;
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-    }
-    nav a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 700;
-      padding: 0.5rem 1rem;
-      border-radius: var(--radius);
-      transition: background 0.2s;
-    }
-    nav a:hover {
-      background: var(--primary);
-      color: #fff;
-    }
-    main {
-      max-width: 900px;
-      margin: 2rem auto;
+    .container {
+      max-width: 600px;
+      margin: 3rem auto;
       background: #fff;
-      border-radius: var(--radius);
+      border-radius: 12px;
       box-shadow: 0 2px 16px rgba(0,0,0,0.08);
       padding: 2rem;
     }
-    h1, h2 {
+    h1 {
+      text-align: center;
+      color: #4f8cff;
       margin-top: 0;
     }
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
+    ul {
+      list-style: none;
+      padding: 0;
     }
-    .card {
-      background: var(--secondary);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-      transition: transform 0.15s;
+    li {
+      margin: 1.2rem 0;
+      font-size: 1.15rem;
     }
-    .card:hover {
-      transform: translateY(-4px) scale(1.03);
-      box-shadow: 0 4px 16px rgba(79,140,255,0.12);
+    a {
+      color: #4f8cff;
+      text-decoration: none;
+      font-weight: 700;
+      border-bottom: 1px dashed #4f8cff;
+      transition: color 0.2s;
     }
-    footer {
-      text-align: center;
-      color: #888;
-      padding: 2rem 0 1rem 0;
-      font-size: 0.95rem;
-    }
-    @media (max-width: 600px) {
-      header { padding: 1rem; }
-      main { padding: 1rem; }
-      nav { gap: 1rem; }
+    a:hover {
+      color: #ffb347;
+      border-bottom: 1px solid #ffb347;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>RWD 美觀範本</h1>
-    <p>這是一個現代化、響應式的網頁範本</p>
-  </header>
-  <nav>
-    <a href="#">首頁</a>
-    <a href="#about">關於我們</a>
-    <a href="#services">服務</a>
-    <a href="#contact">聯絡</a>
-  </nav>
-  <main>
-    <h2>歡迎來到我們的網站！</h2>
-    <p>本範本採用 RWD 響應式設計，適合各種裝置瀏覽。可作為個人、公司或作品集網站的起點。</p>
-    <div class="card-grid">
-      <div class="card">
-        <h3>設計美觀</h3>
-        <p>現代配色與圓角設計，讓網站看起來更專業。</p>
-      </div>
-      <div class="card">
-        <h3>響應式排版</h3>
-        <p>自動適應手機、平板與桌面裝置。</p>
-      </div>
-      <div class="card">
-        <h3>易於擴充</h3>
-        <p>簡單結構，方便後續自訂與擴充功能。</p>
-      </div>
-    </div>
-  </main>
-  <footer>
-    &copy; 2025 RWD 美觀範本. 由 GitHub Copilot 協助設計。
-  </footer>
+  <div class="container">
+    <h1>HTML 檔案總覽</h1>
+    <ul>
+      <li><a href="rwd.html">RWD 美觀範本</a></li>
+    </ul>
+  </div>
 </body>
 </html>
