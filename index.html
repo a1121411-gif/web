@@ -205,13 +205,14 @@
   <div class="container">
     <div id="book-list" class="book-list"></div>
   </div>
-  <!-- 登入視窗 -->
+  <!-- 登入/註冊視窗 -->
   <div class="login-modal" id="login-modal">
     <div class="login-box">
-      <h2>版主登入</h2>
+      <h2 id="login-title">版主登入</h2>
       <input type="text" id="login-user" placeholder="帳號">
       <input type="password" id="login-pw" placeholder="密碼">
-      <button onclick="login()">登入</button>
+      <button id="login-btn" onclick="login()">登入</button>
+      <button id="switch-btn" style="margin-left:1rem;" onclick="switchMode()">註冊</button>
       <div id="login-msg" style="color:#b91c1c;margin-top:0.5rem;"></div>
     </div>
   </div>
@@ -277,15 +278,52 @@
       }
       input.value = '';
     }
-    // 登入驗證
+    // 註冊/登入模式切換
+    let isRegister = false;
+    function switchMode() {
+      isRegister = !isRegister;
+      document.getElementById('login-title').innerText = isRegister ? '註冊新帳號' : '版主登入';
+      document.getElementById('login-btn').innerText = isRegister ? '註冊' : '登入';
+      document.getElementById('switch-btn').innerText = isRegister ? '返回登入' : '註冊';
+      document.getElementById('login-msg').innerText = '';
+    }
+    // 註冊功能
+    function register() {
+      let user = document.getElementById('login-user').value;
+      let pw = document.getElementById('login-pw').value;
+      if(!user || !pw) {
+        document.getElementById('login-msg').innerText = '請輸入帳號與密碼';
+        return;
+      }
+      if(localStorage.getItem('user_'+user)) {
+        document.getElementById('login-msg').innerText = '帳號已存在';
+        return;
+      }
+      localStorage.setItem('user_'+user, pw);
+      document.getElementById('login-msg').innerText = '註冊成功，請登入';
+      switchMode();
+    }
+    // 修改登入按鈕行為
     function login() {
       let user = document.getElementById('login-user').value;
       let pw = document.getElementById('login-pw').value;
+      if(isRegister) {
+        register();
+        return;
+      }
+      // 內建版主帳號
       if(user==='0315' && pw==='0315') {
         document.getElementById('login-modal').style.display='none';
         document.querySelector('.logout-btn').style.display='inline-block';
         document.querySelector('.edit-btn').style.display='inline-block';
         localStorage.setItem('isAdmin','1');
+        localStorage.setItem('currentUser', user);
+      } else if(localStorage.getItem('user_'+user) === pw) {
+        document.getElementById('login-modal').style.display='none';
+        document.querySelector('.logout-btn').style.display='inline-block';
+        document.querySelector('.edit-btn').style.display='none'; // 一般用戶無編輯權限
+        localStorage.setItem('isAdmin','0');
+        localStorage.setItem('currentUser', user);
       } else {
         document.getElementById('login-msg').innerText = '帳號或密碼錯誤';
       }
@@ -293,6 +331,7 @@
     // 登出
     function logout() {
       localStorage.removeItem('isAdmin');
+      localStorage.removeItem('currentUser');
       document.querySelector('.logout-btn').style.display='none';
       document.querySelector('.edit-btn').style.display='none';
       document.getElementById('login-modal').style.display='flex';
@@ -305,10 +344,14 @@
     window.onload = function() {
       loadComments();
       renderBooks();
-      if(localStorage.getItem('isAdmin')==='1') {
+      if(localStorage.getItem('currentUser')) {
         document.getElementById('login-modal').style.display='none';
         document.querySelector('.logout-btn').style.display='inline-block';
-        document.querySelector('.edit-btn').style.display='inline-block';
+        if(localStorage.getItem('isAdmin')==='1') {
+          document.querySelector('.edit-btn').style.display='inline-block';
+        } else {
+          document.querySelector('.edit-btn').style.display='none';
+        }
       }
     }
   </script>
