@@ -28,6 +28,7 @@
       text-align: center;
       border-radius: 0 0 var(--radius) var(--radius);
       box-shadow: 0 2px 8px rgba(124,58,237,0.07);
+      position: relative;
     }
     nav {
       margin: 1.5rem 0;
@@ -182,6 +183,56 @@
       font-weight: 700;
       cursor: pointer;
     }
+    .like-btn, .fav-btn {
+      background: #fff;
+      color: var(--primary-dark);
+      border: 1.5px solid var(--primary-dark);
+      border-radius: 6px;
+      padding: 0.3rem 0.9rem;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-right: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .like-btn.liked, .fav-btn.faved {
+      background: var(--primary-dark);
+      color: #fff;
+    }
+    .rank-board {
+      background: #f8f0ff;
+      border-radius: 12px;
+      box-shadow: 0 1px 8px rgba(124,58,237,0.08);
+      padding: 1.2rem 2rem;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .rank-board h2 {
+      margin-top: 0;
+      color: var(--primary-dark);
+      font-size: 1.3rem;
+    }
+    .rank-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .rank-list li {
+      font-size: 1.1rem;
+      margin: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .rank-list .rank-num {
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 1.2rem;
+      width: 2rem;
+      display: inline-block;
+    }
     @media (max-width: 700px) {
       .container { padding: 1rem; }
       .book-list { grid-template-columns: 1fr; }
@@ -193,6 +244,25 @@
     <h1>書籍介紹平台</h1>
     <p>發現、分享與討論你喜愛的書籍</p>
     <button class="logout-btn" style="display:none" onclick="logout()">登出</button>
+    <div id="user-menu" style="display:none; position:absolute; top:1.5rem; right:2rem;">
+      <button id="user-btn" style="background:var(--primary-dark);color:#fff;border:none;border-radius:8px;padding:0.4rem 1.2rem;font-size:0.95rem;cursor:pointer;">
+        <span id="user-name"></span> ▼
+      </button>
+      <div id="user-dropdown" style="display:none;position:absolute;right:0;top:2.2rem;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(124,58,237,0.15);min-width:200px;z-index:2000;">
+        <div style="padding:1rem;">
+          <label style="font-size:0.95rem;">帳號</label>
+          <input id="setting-user" type="text" style="width:100%;margin-bottom:0.5rem;padding:0.4rem;border-radius:6px;border:1px solid #ccc;" disabled>
+          <label style="font-size:0.95rem;">新密碼</label>
+          <input id="setting-pw" type="password" style="width:100%;margin-bottom:0.5rem;padding:0.4rem;border-radius:6px;border:1px solid #ccc;">
+          <button onclick="saveUserSetting()" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:0.4rem 1.2rem;font-weight:700;cursor:pointer;width:100%;">儲存</button>
+          <div id="setting-msg" style="color:#b91c1c;margin-top:0.5rem;font-size:0.95rem;"></div>
+          <hr style="margin:1rem 0;">
+          <button onclick="showUserLikesFavs('like')" style="width:100%;margin-bottom:0.5rem;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:0.4rem 0;font-weight:700;cursor:pointer;">我按讚的書</button>
+          <button onclick="showUserLikesFavs('fav')" style="width:100%;background:var(--primary-dark);color:#fff;border:none;border-radius:6px;padding:0.4rem 0;font-weight:700;cursor:pointer;">我收藏的書</button>
+          <div id="user-likes-favs" style="margin-top:0.7rem;"></div>
+        </div>
+      </div>
+    </div>
   </header>
   <nav>
     <a href="#" onclick="showCategory('全部')">全部</a>
@@ -203,6 +273,7 @@
     <button class="edit-btn" style="display:none" onclick="editLayout()">編輯版面</button>
   </nav>
   <div class="container">
+    <div class="rank-board" id="rank-board" style="display:none"></div>
     <div id="book-list" class="book-list"></div>
   </div>
   <!-- 登入/註冊視窗 -->
@@ -217,12 +288,12 @@
     </div>
   </div>
   <script>
-    // 書籍資料（可自行擴充）
+    // 書籍資料（增加 likeCount）
     let books = [
-      { id:1, title:'解憂雜貨店', author:'東野圭吾', category:'小說', desc:'一間神祕的雜貨店，解答人們的煩惱。', comments:[] },
-      { id:2, title:'JavaScript 實戰', author:'王小明', category:'技術', desc:'從入門到進階，帶你掌握 JS 核心。', comments:[] },
-      { id:3, title:'被討厭的勇氣', author:'岸見一郎', category:'心理', desc:'阿德勒心理學經典，改變人生的勇氣。', comments:[] },
-      { id:4, title:'自訂書籍', author:'自訂作者', category:'其他', desc:'你可以在編輯模式新增/修改書籍。', comments:[] }
+      { id:1, title:'解憂雜貨店', author:'東野圭吾', category:'小說', desc:'一間神祕的雜貨店，解答人們的煩惱。', comments:[], likeCount:0 },
+      { id:2, title:'JavaScript 實戰', author:'王小明', category:'技術', desc:'從入門到進階，帶你掌握 JS 核心。', comments:[], likeCount:0 },
+      { id:3, title:'被討厭的勇氣', author:'岸見一郎', category:'心理', desc:'阿德勒心理學經典，改變人生的勇氣。', comments:[], likeCount:0 },
+      { id:4, title:'自訂書籍', author:'自訂作者', category:'其他', desc:'你可以在編輯模式新增/修改書籍。', comments:[], likeCount:0 }
     ];
     // 儲存留言到 localStorage
     function saveComments() {
@@ -236,17 +307,127 @@
         books.forEach((b,i)=>{ b.comments = arr[i]||[]; });
       }
     }
-    // 顯示書籍列表
+    // 儲存書籍按讚數
+    function saveBookLikes() {
+      localStorage.setItem('bookLikes', JSON.stringify(books.map(b=>b.likeCount)));
+    }
+    function loadBookLikes() {
+      let l = localStorage.getItem('bookLikes');
+      if(l) {
+        let arr = JSON.parse(l);
+        books.forEach((b,i)=>{ b.likeCount = arr[i]||0; });
+      }
+    }
+    // 使用者個人資料（like/fav）
+    function getUserData() {
+      const user = localStorage.getItem('currentUser');
+      if(!user) return {like:[], fav:[]};
+      let data = localStorage.getItem('userData_'+user);
+      if(data) return JSON.parse(data);
+      return {like:[], fav:[]};
+    }
+    function setUserData(data) {
+      const user = localStorage.getItem('currentUser');
+      if(!user) return;
+      localStorage.setItem('userData_'+user, JSON.stringify(data));
+    }
+    // 按讚
+    function likeBook(id) {
+      const user = localStorage.getItem('currentUser');
+      if(!user) return;
+      let data = getUserData();
+      if(!data.like.includes(id)) {
+        data.like.push(id);
+        let book = books.find(b=>b.id===id);
+        book.likeCount++;
+        setUserData(data);
+        saveBookLikes();
+        renderBooks();
+        renderRank();
+      }
+    }
+    // 收藏
+    function favBook(id) {
+      const user = localStorage.getItem('currentUser');
+      if(!user) return;
+      let data = getUserData();
+      if(!data.fav.includes(id)) {
+        data.fav.push(id);
+        setUserData(data);
+        renderBooks();
+      }
+    }
+    // 取消讚/收藏
+    function unlikeBook(id) {
+      const user = localStorage.getItem('currentUser');
+      if(!user) return;
+      let data = getUserData();
+      let idx = data.like.indexOf(id);
+      if(idx>-1) {
+        data.like.splice(idx,1);
+        let book = books.find(b=>b.id===id);
+        book.likeCount = Math.max(0, book.likeCount-1);
+        setUserData(data);
+        saveBookLikes();
+        renderBooks();
+        renderRank();
+      }
+    }
+    function unfavBook(id) {
+      const user = localStorage.getItem('currentUser');
+      if(!user) return;
+      let data = getUserData();
+      let idx = data.fav.indexOf(id);
+      if(idx>-1) {
+        data.fav.splice(idx,1);
+        setUserData(data);
+        renderBooks();
+      }
+    }
+    // 顯示排行榜
+    function renderRank() {
+      loadBookLikes();
+      let sorted = [...books].sort((a,b)=>b.likeCount-a.likeCount).slice(0,3);
+      let html = `<h2>排行榜（按讚數）</h2><ul class="rank-list">`;
+      sorted.forEach((b,i)=>{
+        html += `<li><span class="rank-num">${i+1}</span> ${b.title} <span style='color:#7c3aed'>(讚：${b.likeCount})</span></li>`;
+      });
+      html += '</ul>';
+      document.getElementById('rank-board').innerHTML = html;
+      document.getElementById('rank-board').style.display = 'block';
+    }
+    // 顯示個人讚/收藏
+    function showUserLikesFavs(type) {
+      let data = getUserData();
+      let arr = type==='like' ? data.like : data.fav;
+      let html = `<div style='margin-top:0.5rem;'><b>${type==='like'?'我按讚的書':'我收藏的書'}</b><ul style='padding-left:1.2em;'>`;
+      if(arr.length===0) html += '<li>尚無資料</li>';
+      else arr.forEach(id=>{
+        let b = books.find(b=>b.id===id);
+        if(b) html += `<li>${b.title}</li>`;
+      });
+      html += '</ul></div>';
+      document.getElementById('user-likes-favs').innerHTML = html;
+    }
+    // 書籍列表顯示按鈕
     function renderBooks(category='全部') {
       loadComments();
+      loadBookLikes();
+      let data = getUserData();
       let list = document.getElementById('book-list');
       let show = category==='全部' ? books : books.filter(b=>b.category===category);
-      list.innerHTML = show.map(b=>`
-        <div class="book-card">
+      list.innerHTML = show.map(b=>{
+        let liked = data.like.includes(b.id);
+        let faved = data.fav.includes(b.id);
+        return `<div class="book-card">
           <span class="category">${b.category}</span>
           <h3>${b.title}</h3>
           <div style="color:#7c3aed;font-size:1.05rem;">作者：${b.author}</div>
           <p>${b.desc}</p>
+          <div style='margin-bottom:0.7rem;'>
+            <button class="like-btn${liked?' liked':''}" onclick="${liked?'unlikeBook':'likeBook'}(${b.id})">${liked?'已按讚':'按讚'} (${b.likeCount})</button>
+            <button class="fav-btn${faved?' faved':''}" onclick="${faved?'unfavBook':'favBook'}(${b.id})">${faved?'已收藏':'收藏'}</button>
+          </div>
           <div class="comment-section">
             <strong>留言區</strong>
             <ul class="comment-list" id="comments-${b.id}">
@@ -257,8 +438,8 @@
               <button type="submit">留言</button>
             </form>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
     // 切換分類
     function showCategory(cat) {
@@ -318,12 +499,14 @@
         document.querySelector('.edit-btn').style.display='inline-block';
         localStorage.setItem('isAdmin','1');
         localStorage.setItem('currentUser', user);
+        showUserMenu();
       } else if(localStorage.getItem('user_'+user) === pw) {
         document.getElementById('login-modal').style.display='none';
         document.querySelector('.logout-btn').style.display='inline-block';
         document.querySelector('.edit-btn').style.display='none'; // 一般用戶無編輯權限
         localStorage.setItem('isAdmin','0');
         localStorage.setItem('currentUser', user);
+        showUserMenu();
       } else {
         document.getElementById('login-msg').innerText = '帳號或密碼錯誤';
       }
@@ -335,15 +518,60 @@
       document.querySelector('.logout-btn').style.display='none';
       document.querySelector('.edit-btn').style.display='none';
       document.getElementById('login-modal').style.display='flex';
+      document.getElementById('user-menu').style.display = 'none';
     }
     // 版主編輯模式（可擴充：新增/刪除/編輯書籍、調整版面）
     function editLayout() {
       alert('這裡可擴充為版主專屬的版面編輯功能！');
     }
+    // 顯示右上帳號
+    function showUserMenu() {
+      const user = localStorage.getItem('currentUser');
+      if(user) {
+        document.getElementById('user-menu').style.display = 'block';
+        document.getElementById('user-name').innerText = user;
+        document.getElementById('setting-user').value = user;
+      } else {
+        document.getElementById('user-menu').style.display = 'none';
+      }
+    }
+    // 點擊帳號展開/收合設定選單
+    document.addEventListener('DOMContentLoaded', function() {
+      const userBtn = document.getElementById('user-btn');
+      if(userBtn) {
+        userBtn.onclick = function(e) {
+          e.stopPropagation();
+          const dropdown = document.getElementById('user-dropdown');
+          dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        };
+      }
+      document.body.onclick = function() {
+        const dropdown = document.getElementById('user-dropdown');
+        if(dropdown) dropdown.style.display = 'none';
+      };
+    });
+    // 儲存帳密設定
+    function saveUserSetting() {
+      const user = localStorage.getItem('currentUser');
+      const newPw = document.getElementById('setting-pw').value;
+      if(!newPw) {
+        document.getElementById('setting-msg').innerText = '請輸入新密碼';
+        return;
+      }
+      if(user === '0315') {
+        document.getElementById('setting-msg').innerText = '內建版主帳號無法變更密碼';
+        return;
+      }
+      localStorage.setItem('user_' + user, newPw);
+      document.getElementById('setting-msg').innerText = '密碼已更新';
+      document.getElementById('setting-pw').value = '';
+    }
     // 自動登入狀態
     window.onload = function() {
       loadComments();
+      loadBookLikes();
       renderBooks();
+      renderRank();
       if(localStorage.getItem('currentUser')) {
         document.getElementById('login-modal').style.display='none';
         document.querySelector('.logout-btn').style.display='inline-block';
@@ -352,6 +580,7 @@
         } else {
           document.querySelector('.edit-btn').style.display='none';
         }
+        showUserMenu();
       }
     }
   </script>
