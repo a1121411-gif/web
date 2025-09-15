@@ -413,7 +413,7 @@
       let html = `<div style='margin-top:0.5rem;'><b>${type==='like'?'我按讚的書':'我收藏的書'}</b><ul style='padding-left:1.2em;'>`;
       if(arr.length===0) html += '<li>尚無資料</li>';
       else arr.forEach(id=>{
-        let b = books.find(b=>b.id===id);
+        let b = books.find(b=>String(b.id)===String(id));
         if(b) html += `<li>${b.title}</li>`;
       });
       html += '</ul></div>';
