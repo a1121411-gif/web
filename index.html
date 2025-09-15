@@ -501,6 +501,15 @@
       switchMode();
     }
     // 修改登入按鈕行為
+    function resetSessionUI() {
+      // 隱藏所有需要登入狀態的UI
+      document.querySelector('.logout-btn').style.display = 'none';
+      document.querySelector('.edit-btn').style.display = 'none';
+      document.getElementById('user-menu').style.display = 'none';
+      // 重設書本列表UI
+      renderBooks();
+      renderRank();
+    }
     function login() {
       let user = document.getElementById('login-user').value;
       let pw = document.getElementById('login-pw').value;
@@ -510,31 +519,32 @@
       }
       // 內建版主帳號
       if(user==='0315' && pw==='0315') {
+        localStorage.setItem('isAdmin','1');
+        localStorage.setItem('currentUser', user);
         document.getElementById('login-modal').style.display='none';
         document.querySelector('.logout-btn').style.display='inline-block';
         document.querySelector('.edit-btn').style.display='inline-block';
-        localStorage.setItem('isAdmin','1');
-        localStorage.setItem('currentUser', user);
         showUserMenu();
+        renderBooks();
+        renderRank();
       } else if(localStorage.getItem('user_'+user) === pw) {
-        document.getElementById('login-modal').style.display='none';
-        document.querySelector('.logout-btn').style.display='inline-block';
-        document.querySelector('.edit-btn').style.display='none'; // 一般用戶無編輯權限
         localStorage.setItem('isAdmin','0');
         localStorage.setItem('currentUser', user);
+        document.getElementById('login-modal').style.display='none';
+        document.querySelector('.logout-btn').style.display='inline-block';
+        document.querySelector('.edit-btn').style.display='none';
         showUserMenu();
+        renderBooks();
+        renderRank();
       } else {
         document.getElementById('login-msg').innerText = '帳號或密碼錯誤';
       }
     }
-    // 登出
     function logout() {
       localStorage.removeItem('isAdmin');
       localStorage.removeItem('currentUser');
-      document.querySelector('.logout-btn').style.display='none';
-      document.querySelector('.edit-btn').style.display='none';
       document.getElementById('login-modal').style.display='flex';
-      document.getElementById('user-menu').style.display = 'none';
+      resetSessionUI();
     }
     // 版主編輯模式（可擴充：新增/刪除/編輯書籍、調整版面）
     function editLayout() {
@@ -597,9 +607,10 @@
           document.querySelector('.edit-btn').style.display='none';
         }
         showUserMenu();
+      } else {
+        resetSessionUI();
       }
     }
   </script>
 </body>
 </html>
-``` 
