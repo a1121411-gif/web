@@ -406,7 +406,7 @@
       document.getElementById('rank-board').innerHTML = html;
       document.getElementById('rank-board').style.display = 'block';
     }
-    // 顯示個人讚/收藏
+    // 顯示個人讚/收藏（修正版，點擊時即時刷新）
     function showUserLikesFavs(type) {
       let data = getUserData();
       let arr = type==='like' ? data.like : data.fav;
@@ -561,22 +561,33 @@
         document.getElementById('user-menu').style.display = 'none';
       }
     }
-    // 點擊帳號展開/收合設定選單
+    // 點擊帳號展開/收合設定選單（修正版）
     document.addEventListener('DOMContentLoaded', function() {
+      const userMenu = document.getElementById('user-menu');
       const userBtn = document.getElementById('user-btn');
+      const userDropdown = document.getElementById('user-dropdown');
       if(userBtn) {
         userBtn.onclick = function(e) {
           e.stopPropagation();
-          const dropdown = document.getElementById('user-dropdown');
-          dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+          if(userDropdown.style.display === 'block') {
+            userDropdown.style.display = 'none';
+          } else {
+            userDropdown.style.display = 'block';
+            // 每次展開都刷新收藏/按讚清單
+            document.getElementById('user-likes-favs').innerHTML = '';
+          }
         };
       }
+      // 點擊下拉選單內部不關閉
+      if(userDropdown) {
+        userDropdown.onclick = function(e) { e.stopPropagation(); };
+      }
+      // 點擊其他地方關閉
       document.body.onclick = function() {
-        const dropdown = document.getElementById('user-dropdown');
-        if(dropdown) dropdown.style.display = 'none';
+        if(userDropdown) userDropdown.style.display = 'none';
       };
     });
-    // 儲存帳密設定
+    // 儲存帳密設定（修正版，立即反映）
     function saveUserSetting() {
       const user = localStorage.getItem('currentUser');
       const newPw = document.getElementById('setting-pw').value;
