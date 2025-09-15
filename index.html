@@ -318,18 +318,28 @@
         books.forEach((b,i)=>{ b.likeCount = arr[i]||0; });
       }
     }
-    // 使用者個人資料（like/fav）
+    // 使用者資料庫（儲存所有帳號的like/fav）
+    function getDatabase() {
+      let db = localStorage.getItem('userDatabase');
+      if(db) return JSON.parse(db);
+      return {};
+    }
+    function setDatabase(db) {
+      localStorage.setItem('userDatabase', JSON.stringify(db));
+    }
     function getUserData() {
       const user = localStorage.getItem('currentUser');
       if(!user) return {like:[], fav:[]};
-      let data = localStorage.getItem('userData_'+user);
-      if(data) return JSON.parse(data);
+      let db = getDatabase();
+      if(db[user]) return db[user];
       return {like:[], fav:[]};
     }
     function setUserData(data) {
       const user = localStorage.getItem('currentUser');
       if(!user) return;
-      localStorage.setItem('userData_'+user, JSON.stringify(data));
+      let db = getDatabase();
+      db[user] = data;
+      setDatabase(db);
     }
     // 按讚
     function likeBook(id) {
