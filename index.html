@@ -406,7 +406,7 @@
       document.getElementById('rank-board').innerHTML = html;
       document.getElementById('rank-board').style.display = 'block';
     }
-    // 顯示個人讚/收藏（修正版，點擊時即時刷新）
+    // 顯示個人讚/收藏（修正版，點擊時即時刷新，且可多次切換正確顯示）
     function showUserLikesFavs(type) {
       let data = getUserData();
       let arr = type==='like' ? data.like : data.fav;
@@ -417,7 +417,10 @@
         if(b) html += `<li>${b.title}</li>`;
       });
       html += '</ul></div>';
-      document.getElementById('user-likes-favs').innerHTML = html;
+      // 先清空再插入，避免多次點擊內容疊加
+      const container = document.getElementById('user-likes-favs');
+      container.innerHTML = '';
+      container.insertAdjacentHTML('beforeend', html);
     }
     // 書籍列表顯示按鈕
     function renderBooks(category='全部') {
@@ -561,9 +564,8 @@
         document.getElementById('user-menu').style.display = 'none';
       }
     }
-    // 點擊帳號展開/收合設定選單（修正版）
+    // 點擊帳號展開/收合設定選單（再次修正，確保每次展開都清空收藏/按讚區塊）
     document.addEventListener('DOMContentLoaded', function() {
-      const userMenu = document.getElementById('user-menu');
       const userBtn = document.getElementById('user-btn');
       const userDropdown = document.getElementById('user-dropdown');
       if(userBtn) {
@@ -573,16 +575,13 @@
             userDropdown.style.display = 'none';
           } else {
             userDropdown.style.display = 'block';
-            // 每次展開都刷新收藏/按讚清單
             document.getElementById('user-likes-favs').innerHTML = '';
           }
         };
       }
-      // 點擊下拉選單內部不關閉
       if(userDropdown) {
         userDropdown.onclick = function(e) { e.stopPropagation(); };
       }
-      // 點擊其他地方關閉
       document.body.onclick = function() {
         if(userDropdown) userDropdown.style.display = 'none';
       };
