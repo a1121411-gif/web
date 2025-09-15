@@ -423,9 +423,15 @@
     function renderBooks(category='全部') {
       loadComments();
       loadBookLikes();
-      let data = getUserData();
       let list = document.getElementById('book-list');
       let show = category==='全部' ? books : books.filter(b=>b.category===category);
+      // 取得最新的 userData（避免快取）
+      const user = localStorage.getItem('currentUser');
+      let data = {like:[], fav:[]};
+      if(user) {
+        let db = getDatabase();
+        if(db[user]) data = db[user];
+      }
       list.innerHTML = show.map(b=>{
         let liked = data.like.includes(b.id);
         let faved = data.fav.includes(b.id);
