@@ -307,16 +307,20 @@
         books.forEach((b,i)=>{ b.comments = arr[i]||[]; });
       }
     }
-    // 儲存書籍按讚數
-    function saveBookLikes() {
+    // 儲存書籍按讚數（根據所有帳號計算）
+    function recalcBookLikes() {
+      let db = getDatabase();
+      books.forEach(b => b.likeCount = 0);
+      Object.values(db).forEach(userData => {
+        (userData.like||[]).forEach(id => {
+          let book = books.find(b=>b.id===id);
+          if(book) book.likeCount++;
+        });
+      });
       localStorage.setItem('bookLikes', JSON.stringify(books.map(b=>b.likeCount)));
     }
     function loadBookLikes() {
-      let l = localStorage.getItem('bookLikes');
-      if(l) {
-        let arr = JSON.parse(l);
-        books.forEach((b,i)=>{ b.likeCount = arr[i]||0; });
-      }
+      recalcBookLikes(); // always recalc from db
     }
     // 使用者資料庫（儲存所有帳號的like/fav）
     function getDatabase() {
@@ -348,10 +352,8 @@
       let data = getUserData();
       if(!data.like.includes(id)) {
         data.like.push(id);
-        let book = books.find(b=>b.id===id);
-        book.likeCount++;
         setUserData(data);
-        saveBookLikes();
+        recalcBookLikes();
         renderBooks();
         renderRank();
       }
@@ -375,10 +377,8 @@
       let idx = data.like.indexOf(id);
       if(idx>-1) {
         data.like.splice(idx,1);
-        let book = books.find(b=>b.id===id);
-        book.likeCount = Math.max(0, book.likeCount-1);
         setUserData(data);
-        saveBookLikes();
+        recalcBookLikes();
         renderBooks();
         renderRank();
       }
@@ -602,3 +602,4 @@
   </script>
 </body>
 </html>
+``` 
